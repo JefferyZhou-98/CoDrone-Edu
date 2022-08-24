@@ -7,8 +7,8 @@ from tkinter import simpledialog
 ROOT = tk.Tk()
 ROOT.withdraw()
 # input dialog
-user_input = simpledialog.askinteger(title="User Input", prompt="Speed: ")
-
+user_input = simpledialog.askfloat(title="User Input", prompt="Speed: ")
+user_input_2 = simpledialog.askfloat(title="User Input", prompt="Duration: ")
 
 drone = Drone()
 print("Getting Ready to Pair...")
