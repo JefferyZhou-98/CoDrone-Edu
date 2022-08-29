@@ -1,13 +1,28 @@
-"""
-    Streaming 6Dof from QTM
-"""
-
 import asyncio
 import xml.etree.ElementTree as ET
 import pkg_resources
 import qtm
 import socket
 import numpy as np
+import csv
+
+#? Creating CSV file for logging 
+def save_file(number, count):
+# def save_file(num, pos, roll, pitch, yaw):
+    # header = ['x(mm)', 'y(mm)', 'z(mm)', 'roll(rad)', 'pitch(rad)', 'yaw(rad)']
+    # with open('test.csv', 'w', encoding='UTF8', newline="") as f:
+    #     data = [num, pos[0], pos[1], pos[2], roll, pitch, yaw]
+    #     writer = csv.writer(f)
+    #     writer.writerow(header)
+    #     writer.writerow(data)
+    header = ['FrameNum', 'BodyCount']
+    with open('test.csv', 'w', encoding='UTF8', newline="") as f:
+        data = [number, count]
+        writer = csv.writer(f)
+        writer.writerow(header)
+        writer.writerow(data)
+
+
 
 def create_body_index(xml_string):
     """ Extract a name to index dictionary from 6dof settings xml """
@@ -52,9 +67,7 @@ def getNewBody():
     if curIndex == len(wanted_bodies):
         curIndex = 0
     yield body
-# saving data 
-pos = []
-euler = []
+
 async def main():
 
     # Setup MatLab Socket
@@ -88,7 +101,6 @@ async def main():
     xml_string = await connection.get_parameters(parameters=["6d"])
     body_index = create_body_index(xml_string)
 
-    wanted_body = "white_rover"
 
     def on_packet(packet):
         info, bodies = packet.get_6d()
@@ -97,6 +109,7 @@ async def main():
                 packet.framenumber, info.body_count
             )
         )
+        save_file(packet.framenumber, info.body_count)
         # for wanted_body in wanted_bodies:
         wanted_body = "tank_12"
         if wanted_body is not None and wanted_body in body_index:
@@ -110,11 +123,15 @@ async def main():
             pitch = np.arctan2(-rot_matrix[6], np.sqrt((rot_matrix[7])**2 + (rot_matrix[8])**2))
             roll = np.arctan2(rot_matrix[7], rot_matrix[8])
             euler_ang = [roll, pitch, yaw]
-            print("{} - Pos: {} - Rot: {}".format(wanted_body, position, euler_ang))
-            MESSAGE=createMatLabPacket(getID(wanted_body), position, rotation).astype('>d')
-            pos.append(position[0])
-            euler.append(euler_ang)
-            my_socket.send(MESSAGE)
+            data = [position[0], position[1], position[2], roll, pitch, yaw]
+            # save_file(packet.framenumber,position, roll, pitch, yaw)
+            # print("{} - Pos: {} - Rot: {}".format(wanted_body, position, euler_ang))
+            # MESSAGE=createMatLabPacket(getID(wanted_body), position, rotation).astype('>d')
+            # pos.append(position[0])
+            # euler.append(euler_ang)
+            # my_socket.send(MESSAGE)
+            # print([position[0][0], position[0][1], position[0][2]])
+            
         else:
             # Print all bodies
             for position, rotation in bodies:
@@ -123,9 +140,8 @@ async def main():
     # Start streaming frames
     await connection.stream_frames(components=["6d"], on_packet=on_packet)
     
-
-    # Wait asynchronously 5 seconds
-    await asyncio.sleep(600)
+    # Wait asynchronously 5 seconds = 600
+    await asyncio.sleep(1)
 
     # Stop streaming
     await connection.stream_frames_stop()
