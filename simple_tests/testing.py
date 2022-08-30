@@ -1,6 +1,8 @@
 from codrone_edu.drone import *
 import numpy as np
 import sys
+
+# copy and paste the src folder path
 sys.path.insert(0, r'C:\Users\Jeffz\Desktop\Purdue 2022\CoDrone-Edu\src')
 from user_GUI import user_input
 
