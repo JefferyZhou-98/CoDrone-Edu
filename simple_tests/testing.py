@@ -6,8 +6,8 @@ import sys
 sys.path.insert(0, r'C:\Users\Jeffz\Desktop\Purdue 2022\CoDrone-Edu\src')
 from user_GUI import user_input
 
-# drone = Drone()
-# print("Getting Ready to Pair...")
+drone = Drone()
+print("Getting Ready to Pair...")
 # drone.pair()
 # print("Paired!")
 
