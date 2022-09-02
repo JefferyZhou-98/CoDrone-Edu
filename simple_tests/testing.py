@@ -3,7 +3,7 @@ import numpy as np
 import sys
 
 # copy and paste the src folder path
-sys.path.insert(0, r'C:\Users\Jeffz\Desktop\Purdue 2022\CoDrone-Edu\src')
+sys.path.insert(0, r'C:\Users\14053\Desktop\CoDrone-Edu\src')
 from user_GUI import user_input
 
 drone = Drone()
