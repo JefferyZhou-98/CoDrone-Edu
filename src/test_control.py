@@ -1,51 +1,49 @@
 # Record sensor data after giving each command
 
+from turtle import delay
 from codrone_edu.drone import *
 import numpy as np
 import time
 import csv
 import keyboard
-
-def save_file(t, roll, pitch, yaw):
-    header = ['time(s)', 'roll_deg', 'pitch_deg', 'yall_deg']
-    with open('data.csv', 'a', encoding='UTF8', newline="") as f:
-        data = [t, roll, pitch, yaw]
-        writer = csv.writer(f)
-        writer.writerow(header)
-        writer.writerow(data)
+import sys
 
 def emergency_landing(event):
     print("Emergency landing!!!")
     drone.land()
+    os.kill(os.getpid(), signal.SIGTERM)
+
+def record_data(record_times, motion_data_list, drone):
+    for i in range(record_times):
+        motion_data = drone.get_motion_data()
+        motion_data_list.append(motion_data)
 
 keyboard.on_press_key("space", emergency_landing)
 
 # Command param: power(-100~100), duration(s)
 power = 50
 duration = 1
-record_times = duration/0.01 # delay=0.01s
+record_times = duration*60 # each record takes 0.0167s
 
 drone = Drone()
 # drone.pair()
 print("Paired!")
 
-print("Press enter to take off")
+print("\nPress enter to take off.")
 keyboard.wait('enter')
 print("Taking off...")
-drone.takeoff()
-drone.hover()
+# drone.takeoff()
+# drone.hover()
 
-print("Press enter to start testing")
+print("\nPress enter to start \"Throttle\" testing.")
 keyboard.wait('enter')
-print("Test start...")
-drone.go(power, 0, 0, 0, duration)
-
-
-# t_k = time.time()
-# for i in np.arange(0,100):
-#     t_k1 = time.time()
-    # r = drone.get_x_angle()
-#     p = drone.get_y_angle()
-#     y = drone.get_z_angle()
-#     save_file(t_k1-t_k, r, p, y)
-#     t_k = t_k1
+print("Test starts...")
+time_start = time.time()
+data = []
+drone.sendControl(0, 0, 0, power)
+record_data(record_times, data, drone)
+drone.sendControl(0, 0, 0, -power)
+record_data(record_times, data, drone)
+drone.reset_move()
+print("\nTest finished in", time.time()-time_start)
+np.savetxt('Throttle_test.csv', np.array(data), delimiter=",")
