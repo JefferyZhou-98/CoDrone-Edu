@@ -47,3 +47,5 @@ record_data(record_times, data, drone)
 drone.reset_move()
 print("\nTest finished in", time.time()-time_start)
 np.savetxt('Throttle_test.csv', np.array(data), delimiter=",")
+
+drone.land()
