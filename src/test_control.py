@@ -41,6 +41,7 @@ print("Test starts...")
 time_start = time.time()
 data = []
 drone.sendControl(0, 0, 0, power)
+drone.set_motor_speed(1000,1000,1000,1000)
 record_data(record_times, data, drone)
 drone.sendControl(0, 0, 0, -power)
 record_data(record_times, data, drone)
